@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { useTheme } from '@/context/ThemeContext';
 import ThemeToggle from '@/components/layout/ThemeToggle';
 import { CheckCircle2, BookOpen, BarChart3, Calendar, CheckSquare } from 'lucide-react';
+import MotivationalQuote from '@/components/quotes/MotivationalQuote';
 
 const Index = () => {
   const { theme } = useTheme();
@@ -14,12 +15,12 @@ const Index = () => {
       {/* Navigation */}
       <header className="border-b border-border">
         <div className="container mx-auto px-4 py-4 flex justify-between items-center">
-          <div className="flex items-center gap-2">
+          <Link to="/" className="flex items-center gap-2 transition-transform hover:scale-105">
             <div className="w-10 h-10 bg-primary rounded-full flex items-center justify-center">
               <span className="text-white font-bold text-lg">J</span>
             </div>
             <h1 className="text-xl font-bold">Journalix</h1>
-          </div>
+          </Link>
           
           <div className="flex items-center gap-4">
             <ThemeToggle />
@@ -55,6 +56,10 @@ const Index = () => {
                 </Button>
               </Link>
             </div>
+            
+            <div className="mt-4">
+              <MotivationalQuote />
+            </div>
           </div>
           
           <div className="md:w-1/2">
@@ -62,11 +67,9 @@ const Index = () => {
               <div className="absolute -z-10 inset-0 bg-gradient-to-tr from-primary/20 to-accent/20 blur-2xl rounded-3xl"></div>
               <div className="glass-card p-6 rounded-xl shadow-xl overflow-hidden">
                 <img 
-                  src="/placeholder.svg" 
+                  src="https://images.unsplash.com/photo-1484480974693-6ca0a78fb36b?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1472&q=80" 
                   alt="Journalix Dashboard" 
-                  className="rounded-lg border border-border shadow-sm"
-                  width="600"
-                  height="400"
+                  className="rounded-lg border border-border shadow-sm object-cover w-full"
                 />
               </div>
             </div>

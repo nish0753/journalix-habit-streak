@@ -2,9 +2,13 @@
 import React, { useState } from 'react';
 import { journalEntries } from '@/lib/mockData';
 import { Button } from '@/components/ui/button';
-import { PenLine, ChevronRight } from 'lucide-react';
+import { PenLine, ChevronRight, X } from 'lucide-react';
 import { JournalEntry } from '@/types';
 import { Link } from 'react-router-dom';
+import MoodSelector from './MoodSelector';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Textarea } from '@/components/ui/textarea';
+import { Input } from '@/components/ui/input';
 
 interface JournalSectionProps {
   limit?: number;
@@ -12,6 +16,12 @@ interface JournalSectionProps {
 
 const JournalSection: React.FC<JournalSectionProps> = ({ limit }) => {
   const [entries] = useState<JournalEntry[]>(limit ? journalEntries.slice(0, limit) : journalEntries);
+  const [newEntry, setNewEntry] = useState<{content: string; mood?: 'happy' | 'sad' | 'angry' | 'neutral' | 'excited'; tags: string}>({
+    content: '',
+    mood: undefined,
+    tags: ''
+  });
+  const [isOpen, setIsOpen] = useState(false);
 
   // Format date for display
   const formatDate = (date: Date) => {
@@ -40,9 +50,18 @@ const JournalSection: React.FC<JournalSectionProps> = ({ limit }) => {
         return '😴';
       case 'neutral':
         return '😐';
+      case 'angry':
+        return '😠';
       default:
         return '';
     }
+  };
+
+  const handleNewEntry = () => {
+    // This would normally save to a database
+    console.log('New journal entry:', newEntry);
+    setNewEntry({content: '', mood: undefined, tags: ''});
+    setIsOpen(false);
   };
 
   return (
@@ -57,10 +76,43 @@ const JournalSection: React.FC<JournalSectionProps> = ({ limit }) => {
                 <ChevronRight size={16} />
               </Button>
             </Link>
-            <Button size="sm" className="gap-1">
-              <PenLine size={16} />
-              New Entry
-            </Button>
+            <Dialog open={isOpen} onOpenChange={setIsOpen}>
+              <DialogTrigger asChild>
+                <Button size="sm" className="gap-1">
+                  <PenLine size={16} />
+                  New Entry
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="sm:max-w-[550px]">
+                <DialogHeader>
+                  <DialogTitle>Create Journal Entry</DialogTitle>
+                </DialogHeader>
+                <div className="space-y-6 py-4">
+                  <MoodSelector 
+                    selectedMood={newEntry.mood} 
+                    onChange={(mood) => setNewEntry({...newEntry, mood})}
+                  />
+                  <div className="space-y-2">
+                    <Textarea 
+                      placeholder="What's on your mind today?" 
+                      className="min-h-[150px]" 
+                      value={newEntry.content}
+                      onChange={(e) => setNewEntry({...newEntry, content: e.target.value})}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Input 
+                      placeholder="Tags (comma separated)" 
+                      value={newEntry.tags}
+                      onChange={(e) => setNewEntry({...newEntry, tags: e.target.value})}
+                    />
+                  </div>
+                  <div className="flex justify-end">
+                    <Button onClick={handleNewEntry}>Save Entry</Button>
+                  </div>
+                </div>
+              </DialogContent>
+            </Dialog>
           </div>
         </div>
       </div>
@@ -80,7 +132,7 @@ const JournalSection: React.FC<JournalSectionProps> = ({ limit }) => {
                       {entry.tags.map((tag, idx) => (
                         <span 
                           key={idx} 
-                          className="badge bg-secondary text-secondary-foreground"
+                          className="badge bg-secondary text-secondary-foreground px-2 py-1 rounded-full text-xs"
                         >
                           #{tag}
                         </span>
@@ -97,10 +149,17 @@ const JournalSection: React.FC<JournalSectionProps> = ({ limit }) => {
         ) : (
           <div className="text-center py-8">
             <p className="text-muted-foreground">No journal entries yet.</p>
-            <Button variant="outline" size="sm" className="mt-2">
-              <PenLine size={16} className="mr-1" />
-              Create your first entry
-            </Button>
+            <Dialog open={isOpen} onOpenChange={setIsOpen}>
+              <DialogTrigger asChild>
+                <Button variant="outline" size="sm" className="mt-2">
+                  <PenLine size={16} className="mr-1" />
+                  Create your first entry
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="sm:max-w-[550px]">
+                {/* Dialog content same as above */}
+              </DialogContent>
+            </Dialog>
           </div>
         )}
       </div>

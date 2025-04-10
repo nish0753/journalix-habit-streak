@@ -35,10 +35,12 @@ const Navbar: React.FC<{ activePage?: string }> = ({ activePage = "dashboard" })
   return (
     <div className="flex flex-col h-full md:h-screen p-4 border-b md:border-r border-border bg-background/50 backdrop-blur-sm">
       <div className="flex items-center gap-2 mb-8">
-        <div className="w-8 h-8 md:w-10 md:h-10 bg-primary rounded-full flex items-center justify-center">
-          <span className="text-white font-bold text-sm md:text-lg">J</span>
-        </div>
-        <h1 className="text-lg md:text-xl font-bold">Journalix</h1>
+        <Link to="/" className="flex items-center gap-2 transition-transform hover:scale-105">
+          <div className="w-8 h-8 md:w-10 md:h-10 bg-primary rounded-full flex items-center justify-center">
+            <span className="text-white font-bold text-sm md:text-lg">J</span>
+          </div>
+          <h1 className="text-lg md:text-xl font-bold">Journalix</h1>
+        </Link>
         <div className="ml-auto">
           <ThemeToggle />
         </div>
