@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Calendar, Home, LineChart, PenTool, CheckSquare, LogOut } from 'lucide-react';
+import { Calendar, Home, LineChart, PenTool, CheckSquare, LogOut, Clock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import ThemeToggle from './ThemeToggle';
 import { useAuth } from '@/context/AuthContext';
@@ -33,12 +33,12 @@ const Navbar: React.FC<{ activePage?: string }> = ({ activePage = "dashboard" })
   const { user, logout } = useAuth();
 
   return (
-    <div className="flex flex-col h-screen p-4 border-r border-border bg-background/50 backdrop-blur-sm">
+    <div className="flex flex-col h-full md:h-screen p-4 border-b md:border-r border-border bg-background/50 backdrop-blur-sm">
       <div className="flex items-center gap-2 mb-8">
-        <div className="w-10 h-10 bg-primary rounded-full flex items-center justify-center">
-          <span className="text-white font-bold text-lg">J</span>
+        <div className="w-8 h-8 md:w-10 md:h-10 bg-primary rounded-full flex items-center justify-center">
+          <span className="text-white font-bold text-sm md:text-lg">J</span>
         </div>
-        <h1 className="text-xl font-bold">Journalix</h1>
+        <h1 className="text-lg md:text-xl font-bold">Journalix</h1>
         <div className="ml-auto">
           <ThemeToggle />
         </div>
@@ -66,6 +66,12 @@ const Navbar: React.FC<{ activePage?: string }> = ({ activePage = "dashboard" })
               active={activePage === "tasks"} 
             />
             <NavItem 
+              to="/habits" 
+              icon={<Clock size={18} />} 
+              label="Habits" 
+              active={activePage === "habits"} 
+            />
+            <NavItem 
               to="/calendar" 
               icon={<Calendar size={18} />} 
               label="Calendar" 
@@ -82,13 +88,13 @@ const Navbar: React.FC<{ activePage?: string }> = ({ activePage = "dashboard" })
           <div className="mt-auto">
             <div className="p-4 rounded-lg bg-secondary mb-4">
               <div className="flex items-center gap-3 mb-2">
-                <div className="w-10 h-10 rounded-full bg-primary flex items-center justify-center">
-                  <span className="text-white font-medium text-sm">
+                <div className="w-8 h-8 md:w-10 md:h-10 rounded-full bg-primary flex items-center justify-center">
+                  <span className="text-white font-medium text-xs md:text-sm">
                     {user.name.charAt(0)}
                   </span>
                 </div>
                 <div>
-                  <p className="font-medium text-sm">{user.name}</p>
+                  <p className="font-medium text-xs md:text-sm">{user.name}</p>
                   <p className="text-xs text-muted-foreground">{user.email}</p>
                 </div>
               </div>

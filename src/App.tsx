@@ -8,10 +8,11 @@ import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import Dashboard from "./components/dashboard/Dashboard";
 import AuthPage from "./components/auth/AuthPage";
-import JournalSection from "./components/journal/JournalSection";
-import TodoList from "./components/todos/TodoList";
+import Journal from "./pages/Journal";
+import Tasks from "./pages/Tasks";
+import HabitTracking from "./pages/HabitTracking";
+import Insights from "./pages/Insights";
 import MonthlyView from "./components/calendar/MonthlyView";
-import ProgressInsights from "./components/insights/ProgressInsights";
 import { ThemeProvider } from "./context/ThemeContext";
 import { AuthProvider } from "./context/AuthContext";
 
@@ -30,10 +31,11 @@ const App = () => (
               <Route path="/auth/login" element={<AuthPage type="login" />} />
               <Route path="/auth/signup" element={<AuthPage type="signup" />} />
               <Route path="/dashboard" element={<Dashboard />} />
-              <Route path="/journal" element={<JournalSection />} />
-              <Route path="/tasks" element={<TodoList />} />
+              <Route path="/journal" element={<Journal />} />
+              <Route path="/tasks" element={<Tasks />} />
+              <Route path="/habits" element={<HabitTracking />} />
+              <Route path="/insights" element={<Insights />} />
               <Route path="/calendar" element={<MonthlyView />} />
-              <Route path="/insights" element={<ProgressInsights />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </BrowserRouter>
