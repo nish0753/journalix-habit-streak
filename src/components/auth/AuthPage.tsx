@@ -5,6 +5,7 @@ import { useAuth } from '@/context/AuthContext';
 import LoginForm from './LoginForm';
 import SignupForm from './SignupForm';
 import ThemeToggle from '../layout/ThemeToggle';
+import MotivationalQuote from '../quotes/MotivationalQuote';
 
 interface AuthPageProps {
   type: 'login' | 'signup';
@@ -41,7 +42,11 @@ const AuthPage: React.FC<AuthPageProps> = ({ type }) => {
               : 'Start building better habits, journal your thoughts, and track your progress.'}
           </p>
 
-          <div className="space-y-4">
+          <div className="mb-8">
+            <MotivationalQuote />
+          </div>
+
+          <div className="space-y-4 mb-8">
             <div className="p-4 rounded-lg bg-background border border-border flex items-start gap-3">
               <div className="w-8 h-8 rounded-full bg-accent flex-shrink-0 flex items-center justify-center text-accent-foreground">
                 ✓
@@ -77,6 +82,14 @@ const AuthPage: React.FC<AuthPageProps> = ({ type }) => {
                 </p>
               </div>
             </div>
+          </div>
+
+          <div className="mt-auto rounded-lg overflow-hidden">
+            <img 
+              src="https://images.unsplash.com/photo-1484480974693-6ca0a78fb36b?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1472&q=80" 
+              alt="Productivity" 
+              className="w-full h-auto object-cover"
+            />
           </div>
         </div>
       </div>

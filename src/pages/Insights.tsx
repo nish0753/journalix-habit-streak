@@ -19,21 +19,21 @@ const Insights: React.FC = () => {
           </div>
           
           <div className="mb-6 flex flex-wrap gap-2">
-            <Button className="flex items-center gap-2">
+            <Button className="flex items-center gap-2 w-full sm:w-auto">
               <RefreshCw size={18} />
-              <span>Refresh Data</span>
+              <span className="sm:inline">Refresh Data</span>
             </Button>
-            <Button variant="outline" className="flex items-center gap-2">
+            <Button variant="outline" className="flex items-center gap-2 w-full sm:w-auto">
               <Download size={18} />
-              <span>Export</span>
+              <span className="sm:inline">Export</span>
             </Button>
-            <Button variant="outline" className="flex items-center gap-2">
+            <Button variant="outline" className="flex items-center gap-2 w-full sm:w-auto">
               <Share2 size={18} />
-              <span>Share</span>
+              <span className="sm:inline">Share</span>
             </Button>
-            <Button variant="outline" className="flex items-center gap-2">
+            <Button variant="outline" className="flex items-center gap-2 w-full sm:w-auto">
               <Printer size={18} />
-              <span>Print</span>
+              <span className="sm:inline">Print</span>
             </Button>
           </div>
           
