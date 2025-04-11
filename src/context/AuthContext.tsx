@@ -35,7 +35,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       console.error('Supabase is not properly configured. Check your environment variables.');
       toast({
         title: "Configuration Error",
-        description: "The app is missing required configuration. Please contact support.",
+        description: "The app requires Supabase configuration. Please set the environment variables.",
         variant: "destructive",
       });
       setLoading(false);

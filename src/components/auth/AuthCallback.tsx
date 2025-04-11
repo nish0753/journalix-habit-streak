@@ -15,7 +15,7 @@ const AuthCallback = () => {
         console.error('Supabase is not properly configured.');
         toast({
           title: "Configuration Error",
-          description: "The app is missing required configuration. Please contact support.",
+          description: "The app is missing required Supabase configuration. Please set the environment variables.",
           variant: "destructive",
         });
         navigate('/auth/login');
