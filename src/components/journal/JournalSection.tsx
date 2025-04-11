@@ -1,8 +1,7 @@
-
 import React, { useState } from 'react';
 import { journalEntries } from '@/lib/mockData';
 import { Button } from '@/components/ui/button';
-import { PenLine, ChevronRight, X, Download, Template, Tag, Calendar } from 'lucide-react';
+import { PenLine, ChevronRight, X, Download, BookText, Tag, Calendar } from 'lucide-react';
 import { JournalEntry } from '@/types';
 import { Link } from 'react-router-dom';
 import MoodSelector from './MoodSelector';
@@ -11,6 +10,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Label } from '@/components/ui/label';
 
 interface JournalSectionProps {
   limit?: number;
