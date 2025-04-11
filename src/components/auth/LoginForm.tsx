@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Eye, EyeOff, Mail, Lock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -46,9 +47,13 @@ const LoginForm: React.FC = () => {
       setIsLoading(true);
       await loginWithGoogle();
       // Note: The redirect after Google login is handled by the AuthCallback component
-    } catch (error) {
-      // Error is handled in the auth context
+    } catch (error: any) {
       setIsLoading(false);
+      toast({
+        title: "Google Login Error",
+        description: "Google login is not configured yet. Please set it up in Supabase dashboard.",
+        variant: "destructive",
+      });
     }
   };
 
@@ -160,7 +165,7 @@ const LoginForm: React.FC = () => {
           type="button"
           variant="outline"
           className="w-full flex items-center justify-center gap-2"
-          disabled={isLoading}
+          disabled={true}
         >
           <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 24 24">
             <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />

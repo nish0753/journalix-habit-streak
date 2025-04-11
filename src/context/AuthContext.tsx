@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
 import { User as SupabaseUser, Session } from '@supabase/supabase-js';
@@ -141,7 +140,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         }
       });
       
-      if (error) throw error;
+      if (error) {
+        // Check for provider configuration errors
+        if (error.message.includes("provider") || error.message.includes("Provider")) {
+          throw new Error("Google authentication is not configured. Please enable Google provider in Supabase dashboard.");
+        }
+        throw error;
+      }
     } catch (error: any) {
       toast({
         title: "Google login failed",
