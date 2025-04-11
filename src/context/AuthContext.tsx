@@ -1,6 +1,5 @@
-
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { supabase } from '@/lib/supabase';
+import { supabase, isSupabaseConfigured } from '@/lib/supabase';
 import { User as SupabaseUser } from '@supabase/supabase-js';
 import { useToast } from '@/hooks/use-toast';
 
@@ -31,66 +30,87 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const isAuthenticated = !!user;
 
   useEffect(() => {
+    // Check if Supabase is configured before attempting to use it
+    if (!isSupabaseConfigured()) {
+      console.error('Supabase is not properly configured. Check your environment variables.');
+      toast({
+        title: "Configuration Error",
+        description: "The app is missing required configuration. Please contact support.",
+        variant: "destructive",
+      });
+      setLoading(false);
+      return;
+    }
+
     // Check active session and set user when the component mounts
     const checkSession = async () => {
       setLoading(true);
-      const { data, error } = await supabase.auth.getSession();
-      
-      if (error) {
-        console.error('Error checking auth session:', error);
-      } else if (data.session) {
-        const { data: userData } = await supabase
-          .from('profiles')
-          .select('*')
-          .eq('id', data.session.user.id)
-          .single();
+      try {
+        const { data, error } = await supabase.auth.getSession();
         
-        if (userData) {
-          setUser({
-            id: data.session.user.id,
-            name: userData.full_name || data.session.user.email?.split('@')[0] || 'User',
-            email: data.session.user.email || '',
-            avatar: userData.avatar_url || '/placeholder.svg',
-          });
-        } else {
-          // If profile doesn't exist yet, create with basic info
-          const { data: newUserData } = await supabase.from('profiles').insert({
-            id: data.session.user.id,
-            full_name: data.session.user.email?.split('@')[0] || 'User',
-            email: data.session.user.email,
-            avatar_url: '/placeholder.svg'
-          }).select('*').single();
+        if (error) {
+          console.error('Error checking auth session:', error);
+        } else if (data.session) {
+          const { data: userData } = await supabase
+            .from('profiles')
+            .select('*')
+            .eq('id', data.session.user.id)
+            .single();
           
-          if (newUserData) {
+          if (userData) {
             setUser({
               id: data.session.user.id,
-              name: newUserData.full_name,
-              email: newUserData.email || '',
-              avatar: newUserData.avatar_url || '/placeholder.svg',
+              name: userData.full_name || data.session.user.email?.split('@')[0] || 'User',
+              email: data.session.user.email || '',
+              avatar: userData.avatar_url || '/placeholder.svg',
             });
+          } else {
+            // If profile doesn't exist yet, create with basic info
+            const { data: newUserData } = await supabase.from('profiles').insert({
+              id: data.session.user.id,
+              full_name: data.session.user.email?.split('@')[0] || 'User',
+              email: data.session.user.email,
+              avatar_url: '/placeholder.svg'
+            }).select('*').single();
+            
+            if (newUserData) {
+              setUser({
+                id: newUserData.full_name,
+                name: newUserData.full_name,
+                email: newUserData.email || '',
+                avatar: newUserData.avatar_url || '/placeholder.svg',
+              });
+            }
           }
         }
+      } catch (err) {
+        console.error('Error in auth check:', err);
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
     };
 
     // Listen for auth state changes
     const { data: authListener } = supabase.auth.onAuthStateChange(
       async (event, session) => {
         if (event === 'SIGNED_IN' && session) {
-          const { data: userData } = await supabase
-            .from('profiles')
-            .select('*')
-            .eq('id', session.user.id)
-            .single();
-          
-          if (userData) {
-            setUser({
-              id: session.user.id,
-              name: userData.full_name || session.user.email?.split('@')[0] || 'User',
-              email: session.user.email || '',
-              avatar: userData.avatar_url || '/placeholder.svg',
-            });
+          try {
+            const { data: userData } = await supabase
+              .from('profiles')
+              .select('*')
+              .eq('id', session.user.id)
+              .single();
+            
+            if (userData) {
+              setUser({
+                id: session.user.id,
+                name: userData.full_name || session.user.email?.split('@')[0] || 'User',
+                email: session.user.email || '',
+                avatar: userData.avatar_url || '/placeholder.svg',
+              });
+            }
+          } catch (err) {
+            console.error('Error handling auth state change:', err);
           }
         } else if (event === 'SIGNED_OUT') {
           setUser(null);
@@ -106,7 +126,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         authListener.subscription.unsubscribe();
       }
     };
-  }, []);
+  }, [toast]);
 
   const login = async (email: string, password: string) => {
     try {
