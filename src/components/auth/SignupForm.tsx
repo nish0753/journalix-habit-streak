@@ -1,10 +1,10 @@
-
 import React, { useState } from 'react';
 import { Eye, EyeOff, Mail, Lock, User } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useAuth } from '@/context/AuthContext';
 import { useToast } from '@/hooks/use-toast';
+import { useNavigate } from 'react-router-dom';
 
 const SignupForm: React.FC = () => {
   const [name, setName] = useState('');
@@ -15,6 +15,7 @@ const SignupForm: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const { signup, loginWithGoogle } = useAuth();
   const { toast } = useToast();
+  const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -40,17 +41,11 @@ const SignupForm: React.FC = () => {
     try {
       setIsLoading(true);
       await signup(name, email, password);
-      toast({
-        title: "Success",
-        description: "Your account has been created",
-      });
+      // After successful signup, we can redirect to login or dashboard
+      // depending on if email confirmation is required
+      navigate('/auth/login');
     } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to create account",
-        variant: "destructive",
-      });
-    } finally {
+      // Error is handled in the auth context
       setIsLoading(false);
     }
   };
@@ -59,17 +54,9 @@ const SignupForm: React.FC = () => {
     try {
       setIsLoading(true);
       await loginWithGoogle();
-      toast({
-        title: "Success",
-        description: "You have successfully signed up with Google",
-      });
+      // Note: The redirect after Google signup is handled by the AuthCallback component
     } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to sign up with Google",
-        variant: "destructive",
-      });
-    } finally {
+      // Error is handled in the auth context
       setIsLoading(false);
     }
   };

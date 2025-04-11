@@ -4,11 +4,13 @@ import Navbar from '../layout/Navbar';
 import HabitTracker from '../habits/HabitTracker';
 import JournalSection from '../journal/JournalSection';
 import TodoList from '../todos/TodoList';
-import { CalendarClock, Award } from 'lucide-react';
+import { CalendarClock, Award, LogOut } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { habitCategories, achievements } from '@/lib/mockData';
 import AchievementBadges from '../achievements/AchievementBadges';
 import { Link } from 'react-router-dom';
+import { useAuth } from '@/context/AuthContext';
+import { useToast } from '@/hooks/use-toast';
 
 const Dashboard: React.FC = () => {
   const today = new Date();
@@ -17,6 +19,21 @@ const Dashboard: React.FC = () => {
     month: 'long',
     day: 'numeric',
   });
+  
+  const { user, logout } = useAuth();
+  const { toast } = useToast();
+  
+  const handleLogout = async () => {
+    try {
+      await logout();
+      toast({
+        title: "Logged out",
+        description: "You have been successfully logged out",
+      });
+    } catch (error) {
+      // Error is handled in the auth context
+    }
+  };
 
   return (
     <div className="flex h-screen overflow-hidden">
@@ -28,15 +45,21 @@ const Dashboard: React.FC = () => {
           <div className="mb-8">
             <div className="flex items-center justify-between mb-4">
               <div>
-                <h1 className="text-3xl font-bold">Good morning!</h1>
+                <h1 className="text-3xl font-bold">Good {getTimeOfDay()}, {user?.name || 'User'}!</h1>
                 <p className="text-muted-foreground">{formattedDate}</p>
               </div>
-              <Link to="/calendar">
-                <Button variant="outline" className="flex items-center gap-2">
-                  <CalendarClock size={18} />
-                  <span>Calendar</span>
+              <div className="flex items-center gap-2">
+                <Link to="/calendar">
+                  <Button variant="outline" className="flex items-center gap-2">
+                    <CalendarClock size={18} />
+                    <span>Calendar</span>
+                  </Button>
+                </Link>
+                <Button variant="ghost" className="flex items-center gap-2" onClick={handleLogout}>
+                  <LogOut size={18} />
+                  <span>Logout</span>
                 </Button>
-              </Link>
+              </div>
             </div>
             
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
@@ -68,7 +91,7 @@ const Dashboard: React.FC = () => {
           
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             <div className="lg:col-span-2 space-y-8">
-              <HabitTracker />
+              <HabitTracker limit={5} />
               <JournalSection limit={1} />
             </div>
             
@@ -113,6 +136,14 @@ const Dashboard: React.FC = () => {
       </div>
     </div>
   );
+};
+
+// Helper function to get the time of day
+const getTimeOfDay = () => {
+  const hour = new Date().getHours();
+  if (hour < 12) return 'morning';
+  if (hour < 18) return 'afternoon';
+  return 'evening';
 };
 
 export default Dashboard;

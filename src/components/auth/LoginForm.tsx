@@ -1,10 +1,10 @@
-
 import React, { useState } from 'react';
 import { Eye, EyeOff, Mail, Lock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useAuth } from '@/context/AuthContext';
 import { useToast } from '@/hooks/use-toast';
+import { useNavigate } from 'react-router-dom';
 
 const LoginForm: React.FC = () => {
   const [email, setEmail] = useState('');
@@ -13,6 +13,7 @@ const LoginForm: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const { login, loginWithGoogle } = useAuth();
   const { toast } = useToast();
+  const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -33,13 +34,9 @@ const LoginForm: React.FC = () => {
         title: "Success",
         description: "You have successfully logged in",
       });
+      navigate('/dashboard');
     } catch (error) {
-      toast({
-        title: "Error",
-        description: "Invalid email or password",
-        variant: "destructive",
-      });
-    } finally {
+      // Error is handled in the auth context
       setIsLoading(false);
     }
   };
@@ -48,17 +45,9 @@ const LoginForm: React.FC = () => {
     try {
       setIsLoading(true);
       await loginWithGoogle();
-      toast({
-        title: "Success",
-        description: "You have successfully logged in with Google",
-      });
+      // Note: The redirect after Google login is handled by the AuthCallback component
     } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to login with Google",
-        variant: "destructive",
-      });
-    } finally {
+      // Error is handled in the auth context
       setIsLoading(false);
     }
   };
