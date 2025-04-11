@@ -1,6 +1,7 @@
+
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { supabase, isSupabaseConfigured } from '@/lib/supabase';
-import { User as SupabaseUser } from '@supabase/supabase-js';
+import { supabase } from '@/lib/supabase';
+import { User as SupabaseUser, Session } from '@supabase/supabase-js';
 import { useToast } from '@/hooks/use-toast';
 
 interface User {
@@ -24,109 +25,90 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
+  const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
 
   const isAuthenticated = !!user;
 
   useEffect(() => {
-    // Check if Supabase is configured before attempting to use it
-    if (!isSupabaseConfigured()) {
-      console.error('Supabase is not properly configured. Check your environment variables.');
-      toast({
-        title: "Configuration Error",
-        description: "The app requires Supabase configuration. Please set the environment variables.",
-        variant: "destructive",
-      });
-      setLoading(false);
-      return;
-    }
-
-    // Check active session and set user when the component mounts
-    const checkSession = async () => {
-      setLoading(true);
-      try {
-        const { data, error } = await supabase.auth.getSession();
+    // Set up auth state listener FIRST
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      (event, newSession) => {
+        setSession(newSession);
         
-        if (error) {
-          console.error('Error checking auth session:', error);
-        } else if (data.session) {
-          const { data: userData } = await supabase
-            .from('profiles')
-            .select('*')
-            .eq('id', data.session.user.id)
-            .single();
+        if (newSession) {
+          // Only synchronous state updates here
+          const userData: User = {
+            id: newSession.user.id,
+            name: newSession.user.user_metadata?.full_name || newSession.user.email?.split('@')[0] || 'User',
+            email: newSession.user.email || '',
+            avatar: newSession.user.user_metadata?.avatar_url || '/placeholder.svg',
+          };
           
-          if (userData) {
-            setUser({
-              id: data.session.user.id,
-              name: userData.full_name || data.session.user.email?.split('@')[0] || 'User',
-              email: data.session.user.email || '',
-              avatar: userData.avatar_url || '/placeholder.svg',
-            });
-          } else {
-            // If profile doesn't exist yet, create with basic info
-            const { data: newUserData } = await supabase.from('profiles').insert({
-              id: data.session.user.id,
-              full_name: data.session.user.email?.split('@')[0] || 'User',
-              email: data.session.user.email,
-              avatar_url: '/placeholder.svg'
-            }).select('*').single();
-            
-            if (newUserData) {
-              setUser({
-                id: newUserData.full_name,
-                name: newUserData.full_name,
-                email: newUserData.email || '',
-                avatar: newUserData.avatar_url || '/placeholder.svg',
-              });
-            }
-          }
-        }
-      } catch (err) {
-        console.error('Error in auth check:', err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    // Listen for auth state changes
-    const { data: authListener } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
-        if (event === 'SIGNED_IN' && session) {
-          try {
-            const { data: userData } = await supabase
-              .from('profiles')
-              .select('*')
-              .eq('id', session.user.id)
-              .single();
-            
-            if (userData) {
-              setUser({
-                id: session.user.id,
-                name: userData.full_name || session.user.email?.split('@')[0] || 'User',
-                email: session.user.email || '',
-                avatar: userData.avatar_url || '/placeholder.svg',
-              });
-            }
-          } catch (err) {
-            console.error('Error handling auth state change:', err);
-          }
-        } else if (event === 'SIGNED_OUT') {
+          setUser(userData);
+          
+          // Defer Supabase calls with setTimeout
+          setTimeout(() => {
+            fetchUserProfile(newSession.user.id);
+          }, 0);
+        } else {
           setUser(null);
         }
       }
     );
-
-    checkSession();
+    
+    // THEN check for existing session
+    supabase.auth.getSession().then(({ data: { session: currentSession } }) => {
+      setSession(currentSession);
+      
+      if (currentSession) {
+        const userData: User = {
+          id: currentSession.user.id,
+          name: currentSession.user.user_metadata?.full_name || currentSession.user.email?.split('@')[0] || 'User',
+          email: currentSession.user.email || '',
+          avatar: currentSession.user.user_metadata?.avatar_url || '/placeholder.svg',
+        };
+        
+        setUser(userData);
+        fetchUserProfile(currentSession.user.id);
+      }
+      
+      setLoading(false);
+    });
     
     return () => {
-      // Clean up subscription on component unmount
-      if (authListener && authListener.subscription) {
-        authListener.subscription.unsubscribe();
-      }
+      subscription.unsubscribe();
     };
   }, [toast]);
+  
+  const fetchUserProfile = async (userId: string) => {
+    try {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', userId)
+        .single();
+      
+      if (error) {
+        console.error('Error fetching user profile:', error);
+        return;
+      }
+      
+      if (data) {
+        setUser(prev => {
+          if (!prev) return prev;
+          return {
+            ...prev,
+            name: data.full_name || prev.name,
+            avatar: data.avatar_url || prev.avatar,
+          };
+        });
+      }
+    } catch (err) {
+      console.error('Unexpected error fetching profile:', err);
+    }
+  };
 
   const login = async (email: string, password: string) => {
     try {
@@ -187,22 +169,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       
       if (error) throw error;
       
-      // Create a profile record for the new user
-      if (data.user) {
-        const { error: profileError } = await supabase.from('profiles').insert({
-          id: data.user.id,
-          full_name: name,
-          email: email,
-          avatar_url: '/placeholder.svg'
-        });
-        
-        if (profileError) throw profileError;
-        
-        toast({
-          title: "Success",
-          description: "Please check your email to confirm your account",
-        });
-      }
+      toast({
+        title: "Success",
+        description: "Please check your email to confirm your account",
+      });
     } catch (error: any) {
       toast({
         title: "Signup failed",
@@ -220,7 +190,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setLoading(true);
       const { error } = await supabase.auth.signOut();
       if (error) throw error;
-      
       // User state will be cleared by the auth state change listener
     } catch (error: any) {
       toast({
