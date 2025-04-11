@@ -51,7 +51,7 @@ const LoginForm: React.FC = () => {
       setIsLoading(false);
       toast({
         title: "Google Login Error",
-        description: "Google login is not configured yet. Please set it up in Supabase dashboard.",
+        description: error.message || "An error occurred during Google login",
         variant: "destructive",
       });
     }
