@@ -1,3 +1,4 @@
+
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
 import { User as SupabaseUser, Session } from '@supabase/supabase-js';
@@ -18,6 +19,7 @@ interface AuthContextType {
   signup: (name: string, email: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
   loading: boolean;
+  updateUserAvatar: (url: string) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -106,6 +108,39 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
     } catch (err) {
       console.error('Unexpected error fetching profile:', err);
+    }
+  };
+
+  const updateUserAvatar = async (url: string) => {
+    if (!user) return;
+    
+    try {
+      // Update the profiles table
+      const { error } = await supabase
+        .from('profiles')
+        .update({ avatar_url: url })
+        .eq('id', user.id);
+        
+      if (error) throw error;
+      
+      // Update the local user state
+      setUser(prev => {
+        if (!prev) return prev;
+        return {
+          ...prev,
+          avatar: url
+        };
+      });
+      
+      toast({
+        description: "Profile picture updated successfully"
+      });
+    } catch (error: any) {
+      toast({
+        title: "Error updating profile picture",
+        description: error.message,
+        variant: "destructive"
+      });
     }
   };
 
@@ -217,6 +252,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         signup,
         logout,
         loading,
+        updateUserAvatar,
       }}
     >
       {children}

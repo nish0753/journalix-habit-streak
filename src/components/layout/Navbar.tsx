@@ -1,11 +1,12 @@
 
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Calendar, Home, LineChart, PenTool, CheckSquare, LogOut, Clock } from 'lucide-react';
+import { Calendar, Home, LineChart, PenTool, CheckSquare, LogOut, Clock, User } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import ThemeToggle from './ThemeToggle';
 import { useAuth } from '@/context/AuthContext';
 import { cn } from '@/lib/utils';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 
 interface NavItemProps {
   to: string;
@@ -90,11 +91,12 @@ const Navbar: React.FC<{ activePage?: string }> = ({ activePage = "dashboard" })
           <div className="mt-auto">
             <div className="p-4 rounded-lg bg-secondary mb-4">
               <div className="flex items-center gap-3 mb-2">
-                <div className="w-8 h-8 md:w-10 md:h-10 rounded-full bg-primary flex items-center justify-center">
-                  <span className="text-white font-medium text-xs md:text-sm">
+                <Avatar className="w-8 h-8 md:w-10 md:h-10 rounded-full">
+                  <AvatarImage src={user.avatar || '/placeholder.svg'} alt={user.name} />
+                  <AvatarFallback className="bg-primary text-white">
                     {user.name.charAt(0)}
-                  </span>
-                </div>
+                  </AvatarFallback>
+                </Avatar>
                 <div>
                   <p className="font-medium text-xs md:text-sm">{user.name}</p>
                   <p className="text-xs text-muted-foreground">{user.email}</p>
