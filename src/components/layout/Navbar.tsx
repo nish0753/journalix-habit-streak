@@ -1,12 +1,13 @@
 
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Calendar, Home, LineChart, PenTool, CheckSquare, LogOut, Clock, User } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import ThemeToggle from './ThemeToggle';
 import { useAuth } from '@/context/AuthContext';
 import { cn } from '@/lib/utils';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { useToast } from '@/hooks/use-toast';
 
 interface NavItemProps {
   to: string;
@@ -32,6 +33,26 @@ const NavItem: React.FC<NavItemProps> = ({ to, icon, label, active }) => (
 
 const Navbar: React.FC<{ activePage?: string }> = ({ activePage = "dashboard" }) => {
   const { user, logout } = useAuth();
+  const { toast } = useToast();
+  const navigate = useNavigate();
+
+  const handleLogout = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    try {
+      await logout();
+      toast({
+        title: "Logged out",
+        description: "You have been successfully logged out",
+      });
+      navigate('/');
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to log out",
+        variant: "destructive",
+      });
+    }
+  };
 
   return (
     <div className="flex flex-col h-full md:h-screen p-4 border-b md:border-r border-border bg-background/50 backdrop-blur-sm">
@@ -91,12 +112,14 @@ const Navbar: React.FC<{ activePage?: string }> = ({ activePage = "dashboard" })
           <div className="mt-auto">
             <div className="p-4 rounded-lg bg-secondary mb-4">
               <div className="flex items-center gap-3 mb-2">
-                <Avatar className="w-8 h-8 md:w-10 md:h-10 rounded-full">
-                  <AvatarImage src={user.avatar || '/placeholder.svg'} alt={user.name} />
-                  <AvatarFallback className="bg-primary text-white">
-                    {user.name.charAt(0)}
-                  </AvatarFallback>
-                </Avatar>
+                <Link to="/profile">
+                  <Avatar className="w-8 h-8 md:w-10 md:h-10 rounded-full cursor-pointer">
+                    <AvatarImage src={user.avatar || '/placeholder.svg'} alt={user.name} />
+                    <AvatarFallback className="bg-primary text-white">
+                      {user.name.charAt(0)}
+                    </AvatarFallback>
+                  </Avatar>
+                </Link>
                 <div>
                   <p className="font-medium text-xs md:text-sm">{user.name}</p>
                   <p className="text-xs text-muted-foreground">{user.email}</p>
@@ -107,7 +130,7 @@ const Navbar: React.FC<{ activePage?: string }> = ({ activePage = "dashboard" })
             <Button 
               variant="outline" 
               className="w-full flex items-center gap-2" 
-              onClick={logout}
+              onClick={handleLogout}
             >
               <LogOut size={16} />
               <span>Sign Out</span>

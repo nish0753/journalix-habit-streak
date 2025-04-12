@@ -39,6 +39,10 @@ const App = () => (
               <Route path="/habits" element={<ProtectedRoute><HabitTracking /></ProtectedRoute>} />
               <Route path="/insights" element={<ProtectedRoute><Insights /></ProtectedRoute>} />
               <Route path="/calendar" element={<ProtectedRoute><MonthlyView /></ProtectedRoute>} />
+              {/* Add aliases for the routes requested by the user */}
+              <Route path="/habit-tracking" element={<ProtectedRoute><HabitTracking /></ProtectedRoute>} />
+              <Route path="/task-management" element={<ProtectedRoute><Tasks /></ProtectedRoute>} />
+              <Route path="/progress-insight" element={<ProtectedRoute><Insights /></ProtectedRoute>} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </BrowserRouter>

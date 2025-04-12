@@ -6,9 +6,11 @@ import { useTheme } from '@/context/ThemeContext';
 import ThemeToggle from '@/components/layout/ThemeToggle';
 import { CheckCircle2, BookOpen, BarChart3, Calendar, CheckSquare } from 'lucide-react';
 import MotivationalQuote from '@/components/quotes/MotivationalQuote';
+import { useAuth } from '@/context/AuthContext';
 
 const Index = () => {
   const { theme } = useTheme();
+  const { isAuthenticated, user } = useAuth();
 
   return (
     <div className="min-h-screen flex flex-col bg-background text-foreground">
@@ -24,12 +26,20 @@ const Index = () => {
           
           <div className="flex items-center gap-4">
             <ThemeToggle />
-            <Link to="/auth/login">
-              <Button variant="outline">Sign In</Button>
-            </Link>
-            <Link to="/auth/signup">
-              <Button>Sign Up</Button>
-            </Link>
+            {!isAuthenticated ? (
+              <>
+                <Link to="/auth/login">
+                  <Button variant="outline">Sign In</Button>
+                </Link>
+                <Link to="/auth/signup">
+                  <Button>Sign Up</Button>
+                </Link>
+              </>
+            ) : (
+              <Link to="/dashboard">
+                <Button>Dashboard</Button>
+              </Link>
+            )}
           </div>
         </div>
       </header>
@@ -45,11 +55,19 @@ const Index = () => {
               Journalix helps you build better habits, maintain streaks, and reflect on your progress with daily journaling.
             </p>
             <div className="flex flex-col sm:flex-row gap-4">
-              <Link to="/auth/signup">
-                <Button size="lg" className="w-full sm:w-auto">
-                  Get Started
-                </Button>
-              </Link>
+              {!isAuthenticated ? (
+                <Link to="/auth/signup">
+                  <Button size="lg" className="w-full sm:w-auto">
+                    Get Started
+                  </Button>
+                </Link>
+              ) : (
+                <Link to="/dashboard">
+                  <Button size="lg" className="w-full sm:w-auto">
+                    Go to Dashboard
+                  </Button>
+                </Link>
+              )}
               <Link to="/dashboard">
                 <Button variant="outline" size="lg" className="w-full sm:w-auto">
                   View Demo
@@ -88,45 +106,53 @@ const Index = () => {
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-            <div className="bg-card p-6 rounded-lg border border-border shadow-sm">
-              <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center mb-4">
-                <CheckCircle2 className="h-6 w-6 text-primary" />
+            <Link to="/habits" className="block">
+              <div className="bg-card p-6 rounded-lg border border-border shadow-sm transition-all hover:shadow-md hover:border-primary/30">
+                <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center mb-4">
+                  <CheckCircle2 className="h-6 w-6 text-primary" />
+                </div>
+                <h3 className="text-xl font-semibold mb-2">Habit Tracking</h3>
+                <p className="text-muted-foreground">
+                  Build streaks, set reminders, and track your daily habits with ease.
+                </p>
               </div>
-              <h3 className="text-xl font-semibold mb-2">Habit Tracking</h3>
-              <p className="text-muted-foreground">
-                Build streaks, set reminders, and track your daily habits with ease.
-              </p>
-            </div>
+            </Link>
             
-            <div className="bg-card p-6 rounded-lg border border-border shadow-sm">
-              <div className="w-12 h-12 bg-indigo-500/10 rounded-lg flex items-center justify-center mb-4">
-                <BookOpen className="h-6 w-6 text-indigo-500" />
+            <Link to="/journal" className="block">
+              <div className="bg-card p-6 rounded-lg border border-border shadow-sm transition-all hover:shadow-md hover:border-primary/30">
+                <div className="w-12 h-12 bg-indigo-500/10 rounded-lg flex items-center justify-center mb-4">
+                  <BookOpen className="h-6 w-6 text-indigo-500" />
+                </div>
+                <h3 className="text-xl font-semibold mb-2">Daily Journal</h3>
+                <p className="text-muted-foreground">
+                  Reflect on your day, capture your thoughts, and maintain a personal diary.
+                </p>
               </div>
-              <h3 className="text-xl font-semibold mb-2">Daily Journal</h3>
-              <p className="text-muted-foreground">
-                Reflect on your day, capture your thoughts, and maintain a personal diary.
-              </p>
-            </div>
+            </Link>
             
-            <div className="bg-card p-6 rounded-lg border border-border shadow-sm">
-              <div className="w-12 h-12 bg-teal-500/10 rounded-lg flex items-center justify-center mb-4">
-                <CheckSquare className="h-6 w-6 text-teal-500" />
+            <Link to="/tasks" className="block">
+              <div className="bg-card p-6 rounded-lg border border-border shadow-sm transition-all hover:shadow-md hover:border-primary/30">
+                <div className="w-12 h-12 bg-teal-500/10 rounded-lg flex items-center justify-center mb-4">
+                  <CheckSquare className="h-6 w-6 text-teal-500" />
+                </div>
+                <h3 className="text-xl font-semibold mb-2">Task Management</h3>
+                <p className="text-muted-foreground">
+                  Organize your to-dos, set priorities, and track completion status.
+                </p>
               </div>
-              <h3 className="text-xl font-semibold mb-2">Task Management</h3>
-              <p className="text-muted-foreground">
-                Organize your to-dos, set priorities, and track completion status.
-              </p>
-            </div>
+            </Link>
             
-            <div className="bg-card p-6 rounded-lg border border-border shadow-sm">
-              <div className="w-12 h-12 bg-yellow-500/10 rounded-lg flex items-center justify-center mb-4">
-                <BarChart3 className="h-6 w-6 text-yellow-500" />
+            <Link to="/insights" className="block">
+              <div className="bg-card p-6 rounded-lg border border-border shadow-sm transition-all hover:shadow-md hover:border-primary/30">
+                <div className="w-12 h-12 bg-yellow-500/10 rounded-lg flex items-center justify-center mb-4">
+                  <BarChart3 className="h-6 w-6 text-yellow-500" />
+                </div>
+                <h3 className="text-xl font-semibold mb-2">Progress Insights</h3>
+                <p className="text-muted-foreground">
+                  Visualize your progress, identify patterns, and celebrate achievements.
+                </p>
               </div>
-              <h3 className="text-xl font-semibold mb-2">Progress Insights</h3>
-              <p className="text-muted-foreground">
-                Visualize your progress, identify patterns, and celebrate achievements.
-              </p>
-            </div>
+            </Link>
           </div>
         </div>
       </section>
@@ -143,16 +169,26 @@ const Index = () => {
             </div>
             
             <div className="flex flex-col sm:flex-row justify-center gap-4">
-              <Link to="/auth/signup">
-                <Button size="lg" className="w-full sm:w-auto">
-                  Create Free Account
-                </Button>
-              </Link>
-              <Link to="/auth/login">
-                <Button variant="outline" size="lg" className="w-full sm:w-auto">
-                  Sign In
-                </Button>
-              </Link>
+              {!isAuthenticated ? (
+                <>
+                  <Link to="/auth/signup">
+                    <Button size="lg" className="w-full sm:w-auto">
+                      Create Free Account
+                    </Button>
+                  </Link>
+                  <Link to="/auth/login">
+                    <Button variant="outline" size="lg" className="w-full sm:w-auto">
+                      Sign In
+                    </Button>
+                  </Link>
+                </>
+              ) : (
+                <Link to="/dashboard">
+                  <Button size="lg" className="w-full sm:w-auto">
+                    Go to Dashboard
+                  </Button>
+                </Link>
+              )}
             </div>
           </div>
         </div>
